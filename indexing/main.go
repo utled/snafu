@@ -119,9 +119,6 @@ func readFile(filename string, theWorks *collectedInfo) {
 		regExCleanup := regexp.MustCompile(`[\p{C}\p{Zl}\p{Zp}]`)
 		contents = regExCleanup.ReplaceAll(contents, []byte(" "))
 		contents = regexp.MustCompile(`\s+`).ReplaceAll(contents, []byte(" "))
-		if err != nil {
-			log.Fatal(err)
-		}
 		if len(contents) < 500 {
 			entry.contentSnippet = contents
 		} else {
@@ -178,7 +175,6 @@ func traverseDirectory(root string, dirJobs chan<- readJob, fileJobs chan<- read
 			theWorks.numOfIgnoredEntries += 1
 			theWorks.notRegistered = append(theWorks.notRegistered, &failedPath)
 			theWorks.mu.Unlock()
-			//log.Printf("Error accessing path %s: %s", path, err)
 			return nil
 		}
 
@@ -236,12 +232,7 @@ func Main() {
 	totalWorkers := 1 + directoryWorkers + fileWorkers
 	wg.Add(totalWorkers)
 
-	//path, err := os.Getwd()
-	//if err != nil {
-	//log.Fatal("Failed to get current working directory: ", err)
-	//}
-
-	path := "/"
+	path := "/home/utled"
 	stat, err := os.Stat(path)
 	if err != nil {
 		log.Fatal(err)
@@ -270,19 +261,4 @@ func Main() {
 	fmt.Println("Number of files: ", theWorks.numOfFiles)
 	fmt.Println("Number read contents: ", theWorks.numOfFilesWithContent)
 	fmt.Println("Number ignored entries: ", theWorks.numOfIgnoredEntries)
-
-	/*	fmt.Println("\nNot registered paths")
-		for _, fail := range theWorks.notRegistered {
-			fmt.Println("failed path: ", fail.path)
-			fmt.Print("with error: ", fail.err, "\n\n")
-		}*/
-
-	/*	for _, entry := range theWorks.entryDetails {
-		if entry.name == "Replanning.txt" {
-			fmt.Println("file: ", entry.fullPath)
-			fmt.Println(string(entry.contentSnippet))
-			fmt.Println("lineCountTotal: ", entry.lineCountTotal)
-			fmt.Println("lineCountWithContent: ", entry.lineCountWithContent)
-		}
-	}*/
 }
