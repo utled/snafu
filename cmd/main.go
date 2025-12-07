@@ -1,9 +1,9 @@
 package main
 
 import (
-	"snafu/indexing"
+	"snafu/cli"
 )
 
 func main() {
-	indexing.Main()
+	cli.Main()
 }
