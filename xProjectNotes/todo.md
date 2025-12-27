@@ -7,11 +7,11 @@
 - [x] write collected data to db
 - [] strategy for more efficient DB write on initial scan
 - [x] set up cli to manage program
-- [] set up orchestration
-- [] set up file system change monitoring
-  - [] decide sync and monitoring strategy
+- [x] set up orchestration
+- [x] set up file system change monitoring
+  - [x] decide sync and monitoring strategy
   - [] set up prioritization
-  - [] implement workflow
+  - [x] implement workflow
   - [] implement change logging
 - [] implement basic search
 - [] implement additional tagging
