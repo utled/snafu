@@ -8,6 +8,7 @@ import (
 	"snafu/data"
 	"snafu/utils"
 	"syscall"
+	"time"
 )
 
 func scanUpdatedDir(readJobs chan<- data.SyncJob, dirPath string, inodeMappedEntries map[uint64]data.InodeHeader) error {
@@ -29,7 +30,7 @@ func scanUpdatedDir(readJobs chan<- data.SyncJob, dirPath string, inodeMappedEnt
 		}
 
 		entryStatT := entryStat.Sys().(*syscall.Stat_t)
-		entryMtim := entryStatT.Mtim.Sec + entryStatT.Mtim.Nsec
+		entryMtim := time.Unix(entryStatT.Mtim.Sec, entryStatT.Mtim.Nsec)
 
 		if inode, ok := inodeMappedEntries[entryStatT.Ino]; !ok {
 			if !entryStat.IsDir() {
@@ -37,7 +38,7 @@ func scanUpdatedDir(readJobs chan<- data.SyncJob, dirPath string, inodeMappedEnt
 				readJobs <- syncJob
 			}
 		} else {
-			if entryMtim != inode.ModificationTime {
+			if !entryMtim.Equal(inode.ModificationTime) {
 				syncJob := data.SyncJob{Path: filePath, IsIndexed: true, IsContentChange: !entry.IsDir()}
 				readJobs <- syncJob
 			} else {

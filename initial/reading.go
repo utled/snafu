@@ -10,6 +10,7 @@ import (
 	"snafu/data"
 	"snafu/utils"
 	"syscall"
+	"time"
 )
 
 func readDir(path string, theWorks *data.CollectedInfo, isRoot bool) {
@@ -30,9 +31,9 @@ func readDir(path string, theWorks *data.CollectedInfo, isRoot bool) {
 
 	statT := dirStat.Sys().(*syscall.Stat_t)
 	entry.Inode = statT.Ino
-	entry.ModificationTime = statT.Mtim.Sec + statT.Mtim.Nsec
-	entry.AccessTime = statT.Atim.Sec + statT.Atim.Nsec
-	entry.MetaDataChangeTime = statT.Ctim.Sec + statT.Ctim.Nsec
+	entry.ModificationTime = time.Unix(statT.Mtim.Sec, statT.Mtim.Nsec)
+	entry.AccessTime = time.Unix(statT.Atim.Sec, statT.Atim.Nsec)
+	entry.MetaDataChangeTime = time.Unix(statT.Ctim.Sec, statT.Ctim.Nsec)
 
 	entry.OwnerID = statT.Uid
 	entry.GroupID = statT.Gid
@@ -91,9 +92,9 @@ func readFile(filename string, theWorks *data.CollectedInfo) {
 
 	statT := fileStat.Sys().(*syscall.Stat_t)
 	entry.Inode = statT.Ino
-	entry.ModificationTime = statT.Mtim.Sec + statT.Mtim.Nsec
-	entry.AccessTime = statT.Atim.Sec + statT.Atim.Nsec
-	entry.MetaDataChangeTime = statT.Ctim.Sec + statT.Ctim.Nsec
+	entry.ModificationTime = time.Unix(statT.Mtim.Sec, statT.Mtim.Nsec)
+	entry.AccessTime = time.Unix(statT.Atim.Sec, statT.Atim.Nsec)
+	entry.MetaDataChangeTime = time.Unix(statT.Ctim.Sec, statT.Ctim.Nsec)
 
 	entry.OwnerID = statT.Uid
 	entry.GroupID = statT.Gid

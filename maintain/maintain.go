@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	longScope  = "/home/utled/GolandProjects/snafu"
+	longScope  = "/home/utled/GolandProjects/"
 	shortScope = "/home/utled/GolandProjects/snafu"
 )
 

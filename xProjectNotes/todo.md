@@ -23,9 +23,9 @@
 
 # BUG FIXES & CHANGES
 ## General
-- [] change time representations from combined Sec+Nsec to separate values to be able to display them as correct datetimes
+- [x] change time representations from combined Sec+Nsec to time.Time objects
 - [] fix the multiplied creation of new directories
-- [] store content snippets without regex. only regex full content
+- [x] store content snippets without regex. only regex full content
 
 ## TUI
 - [] try to get scrollable columns

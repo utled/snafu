@@ -8,7 +8,6 @@ import (
 	"snafu/data"
 	"snafu/search"
 	"strconv"
-	"time"
 
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/bubbles/textinput"
@@ -177,9 +176,9 @@ func (model Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				entry.Path,
 				entry.Name,
 				strconv.FormatInt(entry.Size, 10),
-				time.Unix(0, entry.ModificationTime).Format("2006-01-02 15:04:05"),
-				time.Unix(0, entry.AccessTime).Format("2006-01-02 15:04:05"),
-				time.Unix(0, entry.MetaDataChangeTime).Format("2006-01-02 15:04:05"),
+				entry.ModificationTime.Format("2006-01-02 15:04:05"),
+				entry.AccessTime.Format("2006-01-02 15:04:05"),
+				entry.MetaDataChangeTime.Format("2006-01-02 15:04:05"),
 			})
 		}
 		model.resultsTable.SetRows(rows)

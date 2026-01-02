@@ -27,11 +27,11 @@ type EntryCollection struct {
 	IsDir       bool
 	Size        int64
 	//creationTime       int64 // Btim (not included syscall.Stat_t)
-	ModificationTime     int64  // os.fileStat.sys.Mtim.Sec + Mtim.Nsec
-	AccessTime           int64  // os.fileStat.sys.Atim.Sec + Atim.Nsec
-	MetaDataChangeTime   int64  // os.fileStat.sys.Ctim.Sec + Ctim.Nsec
-	OwnerID              uint32 // os.fileStat.sys.Uid
-	GroupID              uint32 // os.fileStat.sys.Gid
+	ModificationTime     time.Time // os.fileStat.sys.Mtim.Sec + Mtim.Nsec
+	AccessTime           time.Time // os.fileStat.sys.Atim.Sec + Atim.Nsec
+	MetaDataChangeTime   time.Time // os.fileStat.sys.Ctim.Sec + Ctim.Nsec
+	OwnerID              uint32    // os.fileStat.sys.Uid
+	GroupID              uint32    // os.fileStat.sys.Gid
 	Extension            string
 	FileType             string // MIME type
 	ContentSnippet       []byte // short extract of the files content. <= [:500]
@@ -54,15 +54,15 @@ type SyncJob struct {
 
 type InodeHeader struct {
 	Path               string
-	ModificationTime   int64
-	MetaDataChangeTime int64
+	ModificationTime   time.Time
+	MetaDataChangeTime time.Time
 }
 
 type SearchResult struct {
 	Path               string
 	Name               string
 	Size               int64
-	ModificationTime   int64
-	AccessTime         int64
-	MetaDataChangeTime int64
+	ModificationTime   time.Time
+	AccessTime         time.Time
+	MetaDataChangeTime time.Time
 }

@@ -12,6 +12,7 @@ import (
 	"snafu/utils"
 	"sync"
 	"syscall"
+	"time"
 )
 
 func traverseNewDir(readJobs chan<- data.SyncJob, startPath string, con *sql.DB) error {
@@ -37,9 +38,9 @@ func traverseNewDir(readJobs chan<- data.SyncJob, startPath string, con *sql.DB)
 		var syncJob data.SyncJob
 		entryStatT := entryStat.Sys().(*syscall.Stat_t)
 		if inode, ok := inodeMappedEntries[entryStatT.Ino]; ok {
-			entryMtim := entryStatT.Mtim.Sec + entryStatT.Mtim.Nsec
+			entryMtim := time.Unix(entryStatT.Mtim.Sec, entryStatT.Mtim.Nsec)
 			indexedMtim := inode.ModificationTime
-			if entryStat.IsDir() || entryMtim == indexedMtim {
+			if entryStat.IsDir() || entryMtim.Equal(indexedMtim) {
 				syncJob = data.SyncJob{Path: path, IsIndexed: true, IsContentChange: false}
 			} else {
 				syncJob = data.SyncJob{Path: path, IsIndexed: true, IsContentChange: true}
@@ -92,9 +93,9 @@ func traverseDirectories(
 					if inode != statT.Ino {
 						continue
 					}
-					mTim := statT.Mtim.Sec + statT.Mtim.Nsec
-					cTim := statT.Ctim.Sec + statT.Ctim.Nsec
-					if values.ModificationTime != mTim || values.MetaDataChangeTime != cTim {
+					mTim := time.Unix(statT.Mtim.Sec, statT.Mtim.Nsec)
+					cTim := time.Unix(statT.Ctim.Sec, statT.Ctim.Nsec)
+					if !values.ModificationTime.Equal(mTim) || !values.MetaDataChangeTime.Equal(cTim) {
 						readJobs <- data.SyncJob{Path: path, IsIndexed: true, IsContentChange: false}
 						scanJobs <- values
 						continue
