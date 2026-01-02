@@ -56,6 +56,10 @@ func createTables(db *sql.DB) error {
     		line_count_total int,
     		line_count_w_content int
 		) without rowid;`,
+		`create table if not exists tagged_entries (
+    		inode int not null primary key,
+    		tags text
+		);`,
 		`create table if not exists ignored_entries (
     		path text,
     		error text

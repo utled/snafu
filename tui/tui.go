@@ -1,4 +1,4 @@
-package ui
+package tui
 
 import (
 	"database/sql"

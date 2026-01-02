@@ -7,7 +7,7 @@ import (
 	"snafu/initial"
 	"snafu/maintain"
 	"snafu/setup"
-	"snafu/ui"
+	"snafu/tui"
 	"snafu/xTest"
 	"strings"
 )
@@ -30,8 +30,8 @@ func Main() {
 			initial.StartInitialScan()
 		case "sync":
 			maintain.Start()
-		case "ui":
-			ui.UI()
+		case "tui":
+			tui.UI()
 		default:
 			fmt.Println(arguments)
 		}

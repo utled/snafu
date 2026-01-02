@@ -59,10 +59,9 @@ type InodeHeader struct {
 }
 
 type SearchResult struct {
-	Path               string
-	Name               string
-	Size               int64
-	ModificationTime   time.Time
-	AccessTime         time.Time
-	MetaDataChangeTime time.Time
+	Path             string
+	Name             string
+	Size             int64
+	ModificationTime time.Time
+	Inode            uint64
 }

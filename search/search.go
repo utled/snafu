@@ -10,7 +10,7 @@ func Index(con *sql.DB, searchString string) (searchResults []data.SearchResult,
 	var query string
 	var response *sql.Rows
 
-	query = `select path, name, size, modification_time, access_time, metadata_change_time 
+	query = `select path, name, size, modification_time, inode 
 				from entries 
 				where name like ?;`
 	response, err = con.Query(query, searchString+"%")
@@ -21,8 +21,7 @@ func Index(con *sql.DB, searchString string) (searchResults []data.SearchResult,
 			&entry.Name,
 			&entry.Size,
 			&entry.ModificationTime,
-			&entry.AccessTime,
-			&entry.MetaDataChangeTime,
+			&entry.Inode,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to serialize search results: %v", err)
@@ -52,4 +51,22 @@ func ContentSnippet(con *sql.DB, pathString string) (contentSnippet string, err 
 	}
 
 	return contentSnippet, nil
+}
+
+func Tags(con *sql.DB, inode int) (exists bool, tags string, err error) {
+	var result sql.NullString
+	query := "SELECT tags FROM tagged_entries WHERE inode = ?"
+	err = con.QueryRow(query, inode).Scan(&result)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false, "", nil
+		}
+		return false, "", fmt.Errorf("failed to scan tagged entry: %v", err)
+	}
+
+	if result.Valid {
+		tags = result.String
+	}
+
+	return true, tags, nil
 }
