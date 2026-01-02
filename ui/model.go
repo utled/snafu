@@ -2,12 +2,16 @@ package ui
 
 import (
 	"database/sql"
+	"encoding/base64"
 	"fmt"
+	"io"
 	"log"
+	"os"
 	"os/exec"
 	"snafu/data"
 	"snafu/search"
 	"strconv"
+	"time"
 
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/bubbles/textinput"
@@ -30,14 +34,19 @@ type previewResult struct {
 	Content string
 }
 
+type copiedMsg struct{}
+
+type clearMsg struct{}
+
 type Model struct {
+	dbConnection *sql.DB
 	width        int
 	height       int
 	inputField   textinput.Model
 	resultsTable table.Model
 	previewBox   viewport.Model
 	style        styles
-	dbConnection *sql.DB
+	showCopied   bool
 	err          error
 }
 
@@ -112,6 +121,43 @@ func openFile(path string) tea.Cmd {
 	}
 }
 
+func clearCopiedAfter(d time.Duration) tea.Cmd {
+	return tea.Tick(d, func(t time.Time) tea.Msg {
+		return clearMsg{}
+	})
+}
+
+func copyToClipboard(path string) tea.Cmd {
+	return func() tea.Msg {
+		binaries := []struct {
+			name string
+			args []string
+		}{
+			{"wl-copy", []string{}},             // Wayland
+			{"xclip", []string{"-sel", "clip"}}, // X11
+			{"xsel", []string{"-b", "-i"}},      // X11 alternative
+		}
+
+		for _, bin := range binaries {
+			if _, err := exec.LookPath(bin.name); err == nil {
+				cmd := exec.Command(bin.name, bin.args...)
+				in, _ := cmd.StdinPipe()
+				if err := cmd.Start(); err == nil {
+					_, _ = io.WriteString(in, path)
+					in.Close()
+					_ = cmd.Wait()
+					return copiedMsg{}
+				}
+			}
+		}
+
+		b64 := base64.StdEncoding.EncodeToString([]byte(path))
+		fmt.Fprintf(os.Stdout, "\x1b]52;c;%s\x07", b64)
+
+		return copiedMsg{}
+	}
+}
+
 func (model Model) searchDB(searchString string) tea.Cmd {
 	return func() tea.Msg {
 		results, err := search.Index(model.dbConnection, searchString)
@@ -159,6 +205,12 @@ func (model Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				filePath := selectedRow[0]
 				return model, openFile(filePath)
 			}
+		case tea.KeySpace:
+			selectedRow := model.resultsTable.SelectedRow()
+			if selectedRow != nil {
+				filePath := selectedRow[0]
+				return model, copyToClipboard(filePath)
+			}
 		case tea.KeyUp, tea.KeyDown:
 			var cmd tea.Cmd
 			model.resultsTable, cmd = model.resultsTable.Update(msg)
@@ -169,6 +221,12 @@ func (model Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				cmds = append(cmds, model.fetchPreview(path))
 			}
 		}
+	case copiedMsg:
+		model.showCopied = true
+		return model, clearCopiedAfter(time.Second * 2)
+	case clearMsg:
+		model.showCopied = false
+		return model, nil
 	case searchResult:
 		var rows []table.Row
 		for _, entry := range msg.Rows {
@@ -228,6 +286,12 @@ func (model Model) View() string {
 		Padding(1, 0).
 		Width(model.width)
 
+	footerText := "[Arrows] Move • [Enter] Open • [Space] Copy Path • [Q] Quit"
+	copiedLabel := ""
+	if model.showCopied {
+		copiedLabel = " path copied to clipboard"
+	}
+
 	return lipgloss.Place(
 		model.width,
 		model.height,
@@ -241,7 +305,7 @@ func (model Model) View() string {
 			previewStyle.Render(model.previewBox.View()),
 			"\n "+lipgloss.NewStyle().
 				Foreground(lipgloss.Color("240")).
-				Render("[Arrows] Move • [Enter] Open • [Q] Quit"),
+				Render(footerText+"\n\n"+copiedLabel),
 		),
 	)
 }
