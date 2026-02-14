@@ -20,13 +20,6 @@
 - [] figure out what else it's supposed to do
 - [] figure out what to do in life
 
-## Search
-- [] tag search
-- [] path search
-- [] content search
-- [] prioritize and organize results
-- [] add search origin tag display (i.e. entry found by name, tag, path, content et.c.)
-
 # BUG FIXES & CHANGES
 ## General
 - [x] change time representations from combined Sec+Nsec to time.Time objects
@@ -36,9 +29,3 @@
 - [] explore options for defining file types for content reading
 - [] explore options for defining excluded objects
 
-## Search TUI
-- [] try to get scrollable columns
-- [x] interactive rows
-- [x] implement "per keystroke"-search instead of on enter
-- [x] implement preview pane
-- [x] update db connection persistency

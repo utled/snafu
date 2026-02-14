@@ -7,8 +7,6 @@ import (
 	"icu/initial"
 	"icu/maintain"
 	"icu/setup"
-	"icu/tui"
-	"icu/xTest"
 	"strings"
 )
 
@@ -20,7 +18,7 @@ func Main() {
 		arguments := strings.Split(strings.TrimSpace(input), " ")
 		switch arguments[0] {
 		case "test":
-			test.Main()
+			//test.Main()
 		case "setup":
 			err := setup.Main()
 			if err != nil {
@@ -30,8 +28,6 @@ func Main() {
 			initial.StartInitialScan()
 		case "sync":
 			maintain.Start()
-		case "tui":
-			tui.UI()
 		default:
 			fmt.Println(arguments)
 		}
